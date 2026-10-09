@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 
-from app.services.post_service import (
+from app.services.post_services import (
     create_post,
     get_post,
     get_user_posts
