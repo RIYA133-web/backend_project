@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from app.models.user import User
 from app import db
 
-from app.services.user_service import (
+from app.services.user_services import (
     create_user,
     get_all_users,
     update_user
