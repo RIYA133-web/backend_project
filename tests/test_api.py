@@ -1,49 +1,62 @@
 
-from app import app
+import pytest
+
+from app import create_app, db
 
 
-def test_get_users():
-    app.config["TESTING"] = True
+@pytest.fixture
+def client():
+    test_app = create_app({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite://",
+    })
 
-    with app.test_client() as client:
-        response = client.get("/users")
+    with test_app.app_context():
+        db.drop_all()
+        db.create_all()
 
-        assert response.status_code == 200
-        assert isinstance(response.json, list)
+        from app.models.user import User
 
+        user = User(name="Test User", age=25)
+        db.session.add(user)
+        db.session.commit()
 
-def test_get_user_posts():
-    app.config["TESTING"] = True
+        yield test_app.test_client()
 
-    with app.test_client() as client:
-        response = client.get("/users/1/posts")
-
-        assert response.status_code == 200
-        assert isinstance(response.json, list)
-
-
-def test_get_post_not_found():
-    app.config["TESTING"] = True
-
-    with app.test_client() as client:
-        response = client.get("/posts/999999")
-
-        assert response.status_code == 404
+        db.session.remove()
+        db.drop_all()
 
 
-def test_create_post():
-    app.config["TESTING"] = True
+def test_get_users(client):
+    response = client.get("/users")
 
-    with app.test_client() as client:
-        response = client.post(
-            "/posts",
-            json={
-                "title": "My First Post",
-                "content": "This is my test post",
-                "user_id": 1
-            }
-        )
+    assert response.status_code == 200
+    assert isinstance(response.json, list)
 
-        assert response.status_code == 201
-        assert response.json["message"] == "Post created"
-        assert "id" in response.json
+
+def test_get_user_posts(client):
+    response = client.get("/users/1/posts")
+
+    assert response.status_code == 200
+    assert isinstance(response.json, list)
+
+
+def test_get_post_not_found(client):
+    response = client.get("/posts/999999")
+
+    assert response.status_code == 404
+
+
+def test_create_post(client):
+    response = client.post(
+        "/posts",
+        json={
+            "title": "My First Post",
+            "content": "This is my test post",
+            "user_id": 1,
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.json["message"] == "Post created"
+    assert "id" in response.json
