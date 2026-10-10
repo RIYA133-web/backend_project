@@ -74,4 +74,4 @@ def get_user_posts_route(user_id):
         }
         for post in posts
     ]
-    ]
+    
