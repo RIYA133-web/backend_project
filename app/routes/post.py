@@ -1,5 +1,7 @@
-from flask import Blueprint, request
+\from flask import Blueprint, request
 
+from app import db
+from app.models.user import User
 from app.services.post_services import (
     create_post,
     get_post,
@@ -30,6 +32,11 @@ def create_post_route():
 
     if not isinstance(data["user_id"], int) or isinstance(data["user_id"], bool):
         return {"error": "user_id must be an integer"}, 400
+
+    user = db.session.get(User, data["user_id"])
+
+    if user is None:
+        return {"error": "User not found"}, 404
 
     post = create_post(
         data["title"],
@@ -66,4 +73,5 @@ def get_user_posts_route(user_id):
             "content": post.content
         }
         for post in posts
+    ]
     ]
