@@ -86,7 +86,9 @@ def test_create_post_missing_content(client):
 
     assert response.status_code == 400
     assert response.json["error"] == "Missing required field: content"
- def test_create_post_with_unknown_user(client):
+
+
+def test_create_post_with_unknown_user(client):
     response = client.post(
         "/posts",
         json={
@@ -97,6 +99,4 @@ def test_create_post_missing_content(client):
     )
 
     assert response.status_code == 404
-    assert response.json["error"] == "User not found"   
-    
-    
+    assert response.json["error"] == "User not found"
