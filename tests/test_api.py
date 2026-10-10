@@ -1,5 +1,4 @@
 
-```python
 from app import app
 
 
@@ -48,4 +47,3 @@ def test_create_post():
         assert response.status_code == 201
         assert response.json["message"] == "Post created"
         assert "id" in response.json
-```
