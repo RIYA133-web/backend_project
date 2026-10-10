@@ -11,7 +11,25 @@ posts_bp = Blueprint("posts", __name__)
 
 @posts_bp.route("/posts", methods=["POST"])
 def create_post_route():
-    data = request.json
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return {"error": "Request body must be valid JSON"}, 400
+
+    required_fields = ["title", "content", "user_id"]
+
+    for field in required_fields:
+        if field not in data:
+            return {"error": f"Missing required field: {field}"}, 400
+
+    if not isinstance(data["title"], str) or not data["title"].strip():
+        return {"error": "Title must be a non-empty string"}, 400
+
+    if not isinstance(data["content"], str) or not data["content"].strip():
+        return {"error": "Content must be a non-empty string"}, 400
+
+    if not isinstance(data["user_id"], int) or isinstance(data["user_id"], bool):
+        return {"error": "user_id must be an integer"}, 400
 
     post = create_post(
         data["title"],
