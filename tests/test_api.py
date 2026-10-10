@@ -60,3 +60,29 @@ def test_create_post(client):
     assert response.status_code == 201
     assert response.json["message"] == "Post created"
     assert "id" in response.json
+
+
+def test_create_post_missing_title(client):
+    response = client.post(
+        "/posts",
+        json={
+            "content": "This is my test post",
+            "user_id": 1,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json["error"] == "Missing required field: title"
+
+
+def test_create_post_missing_content(client):
+    response = client.post(
+        "/posts",
+        json={
+            "title": "My First Post",
+            "user_id": 1,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json["error"] == "Missing required field: content"
