@@ -100,3 +100,13 @@ def test_create_post_with_unknown_user(client):
 
     assert response.status_code == 404
     assert response.json["error"] == "User not found"
+def test_create_post_with_invalid_json(client):
+    response = client.post(
+        "/posts",
+        data='{"title": "Test Post",',
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert response.json["error"] == "Request body must be valid JSON"   
+    
