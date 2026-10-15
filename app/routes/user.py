@@ -1,8 +1,6 @@
 from flask import Blueprint, request
 
 from app.models.user import User
-from app import db
-
 from app.services.user_services import (
     create_user,
     get_all_users,
@@ -28,10 +26,25 @@ def get_users():
 
 @users_bp.route("/users", methods=["POST"])
 def create_user_route():
-    data = request.json
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return {"error": "Invalid JSON"}, 400
+
+    if "name" not in data or "age" not in data:
+        return {"error": "Name and age are required"}, 400
+
+    if not isinstance(data["name"], str) or not data["name"].strip():
+        return {"error": "Name must be a non-empty string"}, 400
+
+    if isinstance(data["age"], bool) or not isinstance(data["age"], int):
+        return {"error": "Age must be an integer"}, 400
+
+    if data["age"] < 0:
+        return {"error": "Age cannot be negative"}, 400
 
     user = create_user(
-        data["name"],
+        data["name"].strip(),
         data["age"]
     )
 
@@ -43,15 +56,33 @@ def create_user_route():
 
 @users_bp.route("/users/<int:user_id>", methods=["PUT"])
 def update_user_route(user_id):
-    data = request.json
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return {"error": "Invalid JSON"}, 400
+
+    if "name" not in data or "age" not in data:
+        return {"error": "Name and age are required"}, 400
+
+    if not isinstance(data["name"], str) or not data["name"].strip():
+        return {"error": "Name must be a non-empty string"}, 400
+
+    if isinstance(data["age"], bool) or not isinstance(data["age"], int):
+        return {"error": "Age must be an integer"}, 400
+
+    if data["age"] < 0:
+        return {"error": "Age cannot be negative"}, 400
 
     user = update_user(
         user_id,
-        data["name"],
+        data["name"].strip(),
         data["age"]
     )
+
+    if user is None:
+        return {"error": "User not found"}, 404
 
     return {
         "message": "User updated",
         "id": user.id
-    }
+    }, 200
