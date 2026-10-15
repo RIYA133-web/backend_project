@@ -1,4 +1,4 @@
-```yaml
+
 name: Deploy Frontend
 
 on:
@@ -16,15 +16,15 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -36,9 +36,8 @@ jobs:
       - name: Upload frontend files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./frontend"
+          path: frontend
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-```
