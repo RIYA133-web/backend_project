@@ -1,0 +1,90 @@
+```javascript
+const API_URL = "https://backend-project-15sa.onrender.com";
+
+const userForm = document.getElementById("user-form");
+const usersList = document.getElementById("users-list");
+const message = document.getElementById("message");
+const refreshButton = document.getElementById("refresh-users");
+
+// Load users from the backend
+async function loadUsers() {
+    usersList.innerHTML = "<li>Loading users...</li>";
+
+    try {
+        const response = await fetch(`${API_URL}/users`);
+
+        if (!response.ok) {
+            throw new Error("Could not load users.");
+        }
+
+        const users = await response.json();
+        usersList.innerHTML = "";
+
+        if (users.length === 0) {
+            usersList.innerHTML =
+                "<li>No users found. Add your first user!</li>";
+            return;
+        }
+
+        users.forEach((user) => {
+            const li = document.createElement("li");
+            li.textContent =
+                `ID: ${user.id} | Name: ${user.name} | Age: ${user.age}`;
+            usersList.appendChild(li);
+        });
+    } catch (error) {
+        usersList.innerHTML =
+            "<li>Unable to load users. Please try again.</li>";
+        console.error(error);
+    }
+}
+
+// Create a new user
+userForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const ageValue = document.getElementById("age").value;
+    const age = Number(ageValue);
+
+    message.textContent = "";
+
+    if (!name) {
+        message.textContent = "Please enter a name.";
+        return;
+    }
+
+    if (ageValue.trim() === "" || !Number.isInteger(age) || age < 0) {
+        message.textContent = "Please enter a valid age.";
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/users`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, age })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Could not create user.");
+        }
+
+        message.textContent = "User created successfully!";
+        userForm.reset();
+        await loadUsers();
+    } catch (error) {
+        message.textContent = error.message;
+    }
+});
+
+// Refresh users list
+refreshButton.addEventListener("click", loadUsers);
+
+// Load users when the page opens
+loadUsers();
+```
