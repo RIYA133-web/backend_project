@@ -1,4 +1,4 @@
-```javascript
+
 const API_URL = "https://backend-project-15sa.onrender.com";
 
 const userForm = document.getElementById("user-form");
@@ -87,4 +87,3 @@ refreshButton.addEventListener("click", loadUsers);
 
 // Load users when the page opens
 loadUsers();
-```
