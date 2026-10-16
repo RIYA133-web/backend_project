@@ -24,6 +24,18 @@ def update_user(user_id, name, age):
     user.name = name
     user.age = age
 
+def delete_user(user_id):
+    user = User.query.get(user_id)
+
+    if user is None:
+        return None
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return user 
+    
+
     db.session.commit()
 
     return user
