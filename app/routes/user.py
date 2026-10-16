@@ -1,10 +1,11 @@
+```python
 from flask import Blueprint, request
 
-from app.models.user import User
 from app.services.user_services import (
     create_user,
     get_all_users,
-    update_user
+    update_user,
+    delete_user
 )
 
 users_bp = Blueprint("users", __name__)
@@ -86,3 +87,16 @@ def update_user_route(user_id):
         "message": "User updated",
         "id": user.id
     }, 200
+
+
+@users_bp.route("/users/<int:user_id>", methods=["DELETE"])
+def delete_user_route(user_id):
+    user = delete_user(user_id)
+
+    if user is None:
+        return {"error": "User not found"}, 404
+
+    return {
+        "message": "User deleted successfully"
+    }, 200
+```
