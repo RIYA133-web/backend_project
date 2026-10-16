@@ -1,4 +1,3 @@
-```python
 from flask import Blueprint, request
 
 from app.services.user_services import (
@@ -99,4 +98,4 @@ def delete_user_route(user_id):
     return {
         "message": "User deleted successfully"
     }, 200
-```
+
