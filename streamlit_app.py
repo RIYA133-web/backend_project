@@ -13,10 +13,11 @@ st.set_page_config(
 st.title("👥 User Management Dashboard")
 st.caption("Manage your users easily")
 
-tab1, tab2, tab3 = st.tabs(
-    ["👤 Users", "➕ Add User", "✏️ Edit User"]
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["👤 Users", "➕ Add User", "✏️ Edit User", "🗑️ Delete User"]
 )
 
+# -------------------- USERS LIST --------------------
 with tab1:
     st.subheader("All Users")
 
@@ -39,6 +40,8 @@ with tab1:
     except requests.RequestException:
         st.error("Could not connect to the API. Please try again.")
 
+
+# -------------------- ADD USER --------------------
 with tab2:
     st.subheader("Add a New User")
 
@@ -73,6 +76,8 @@ with tab2:
                 except requests.RequestException:
                     st.error("Could not connect to the API.")
 
+
+# -------------------- EDIT USER --------------------
 with tab3:
     st.subheader("Edit an Existing User")
 
@@ -92,7 +97,8 @@ with tab3:
 
                 selected_label = st.selectbox(
                     "Select a user",
-                    list(user_options.keys())
+                    list(user_options.keys()),
+                    key="edit_user_select"
                 )
                 selected_user = user_options[selected_label]
 
@@ -141,3 +147,65 @@ with tab3:
     except requests.RequestException:
         st.error("Could not connect to the API.")
 
+
+# -------------------- DELETE USER --------------------
+with tab4:
+    st.subheader("Delete a User")
+
+    try:
+        response = requests.get(f"{API_URL}/users", timeout=30)
+
+        if response.ok:
+            users = response.json()
+
+            if not users:
+                st.info("No users available to delete.")
+            else:
+                user_options = {
+                    f"{user['name']} (ID: {user['id']})": user
+                    for user in users
+                }
+
+                selected_label = st.selectbox(
+                    "Select a user to delete",
+                    list(user_options.keys()),
+                    key="delete_user_select"
+                )
+
+                selected_user = user_options[selected_label]
+
+                st.warning(
+                    f"You are about to delete {selected_user['name']} "
+                    f"(ID: {selected_user['id']})."
+                )
+
+                confirm = st.checkbox(
+                    "I confirm that I want to delete this user.",
+                    key="confirm_delete_user"
+                )
+
+                if st.button("🗑️ Delete User", type="primary"):
+                    if not confirm:
+                        st.warning("Please confirm before deleting.")
+                    else:
+                        delete_response = requests.delete(
+                            f"{API_URL}/users/{selected_user['id']}",
+                            timeout=30
+                        )
+
+                        if delete_response.ok:
+                            st.success("User deleted successfully!")
+                            st.rerun()
+                        else:
+                            try:
+                                error = delete_response.json().get(
+                                    "error", "Could not delete user."
+                                )
+                            except ValueError:
+                                error = "Could not delete user."
+                            st.error(error)
+        else:
+            st.error("Could not load users for deletion.")
+
+    except requests.RequestException:
+        st.error("Could not connect to the API.")
