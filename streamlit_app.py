@@ -196,16 +196,8 @@ with tab4:
                         if delete_response.ok:
                             st.success("User deleted successfully!")
                             st.rerun()
-                        else:
-                            try:
-                                error = delete_response.json().get(
-                                    "error", "Could not delete user."
-                                )
-                            except ValueError:
-                                error = "Could not delete user."
-                            st.error(error)
-        else:
-            st.error("Could not load users for deletion.")
+                       else:
+    st.error("Could not load users for deletion.")
 
-    except requests.RequestException:
-        st.error("Could not connect to the API.")
+except requests.RequestException:
+    st.error("Could not connect to the API.")
